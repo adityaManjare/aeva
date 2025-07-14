@@ -1,3 +1,6 @@
 __pycache__
-fastapi_venv
+aeva_venv
 .DS_Store
+test_data
+.env
+chroma_db
