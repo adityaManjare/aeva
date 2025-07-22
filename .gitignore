@@ -4,3 +4,4 @@ aeva_venv
 test_data
 .env
 chroma_db
+next_features.txt
