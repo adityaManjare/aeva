@@ -8,9 +8,9 @@ router = APIRouter(
 
 
 @router.post('/')
-def upload_doc_router(query : schemas.Chat):
+def upload_doc_router(query : schemas.UserChat):
     if not query:
         raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="Please enter your query")
     
-    return chat.final_reply(query.message,query.n_results)
+    return chat.final_reply(query)
         

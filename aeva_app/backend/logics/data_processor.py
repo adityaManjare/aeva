@@ -46,6 +46,7 @@ def chunk_embed_store(chunk_size,data):
         for sentence in doc.sents:
             filtered_tokens = [token.text for token in sentence if is_significant_token(token)]
             filtered_text =" ".join(filtered_tokens)
+            filtered_text= filtered_text.strip()
             if(len(chunk)+len(sentence)<chunk_size):
                 chunk+=filtered_text + " "
                 filtered_text =""
