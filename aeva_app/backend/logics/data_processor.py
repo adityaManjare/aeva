@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 
 chunk_size = 750
 embedding_model = SentenceTransformer("multi-qa-MPNET-base-dot-v1")
-client = chromadb.PersistentClient(path="./chroma_db")
+client = chromadb.PersistentClient(path="../../../chroma_db")
 embeddings_db = client.get_or_create_collection(name="embeddings")
 english_model = spacy.load("en_core_web_sm")
 

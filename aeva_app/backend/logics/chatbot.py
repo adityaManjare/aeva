@@ -9,7 +9,7 @@ from .. import schemas
 #constants and important 
 
 embedding_model = SentenceTransformer("multi-qa-MPNET-base-dot-v1")
-client = chromadb.PersistentClient(path="./chroma_db")
+client = chromadb.PersistentClient(path="../../../chroma_db")
 embeddings_db = client.get_or_create_collection(name="embeddings")
 
 
