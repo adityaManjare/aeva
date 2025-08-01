@@ -5,13 +5,13 @@ from typing import Dict, Union
 
 class UserChat(BaseModel):
     message: str
-    n_results:int = 2 
-    search_mode :str = 'Study Material' # it can be plain llm it can be websearch it can be from uploaded pdf
+    n_results:int = 5
+    search_mode :str = 'study_material' # it can be plain llm it can be websearch it can be from uploaded pdf
     
 
     @field_validator('n_results')
     def max_relevant_chunks(cls,n_results): # yaha pe cls isiliye bcs instance banane se pahle check kar rahe
-        if n_results>3:
+        if n_results>8:
             raise ValueError("n_result cannot be greater than 3")
         
         return n_results

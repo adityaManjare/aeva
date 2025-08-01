@@ -4,7 +4,7 @@ from sentence_transformers import SentenceTransformer
 
 
 
-chunk_size = 750
+chunk_size = 250
 embedding_model = SentenceTransformer("multi-qa-MPNET-base-dot-v1")
 client = chromadb.PersistentClient(path="../../../chroma_db")
 embeddings_db = client.get_or_create_collection(name="embeddings")

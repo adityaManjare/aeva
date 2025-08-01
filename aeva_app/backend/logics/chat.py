@@ -33,7 +33,7 @@ def final_reply(query:schemas.UserChat):
             ans_mode=query.search_mode,
             original_query=query.message,
             context=[contxt["snippet"] for contxt in result["organic"][:query.n_results]],
-            metadata = [{"title":meta["title"],"link":meta["link"]} for meta in result["organic"][query.n_results] ]
+            metadata = [{"title":meta["title"],"link":meta["link"]} for meta in result["organic"][:query.n_results] ]
         )
         return chatbot.chatbot(input_query)
     else:
