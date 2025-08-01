@@ -11,7 +11,8 @@ import {
   Paperclip, 
   X,
   Bot,
-  User
+  User,
+  Info
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,14 @@ interface Message {
   content: string;
   timestamp: Date;
   attachments?: File[];
+   metadata?: {
+    sources: Array<{
+      name: string; // PDF name or web URL
+      pageNumber?: number;
+      title?: string;
+      type: 'pdf' | 'web';
+    }>;
+  };
 }
 
 interface ChatMode {
@@ -43,6 +52,7 @@ const ChatInterface = () => {
   const [selectedMode, setSelectedMode] = useState<'pdf' | 'web'>('pdf');
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showMetadata, setShowMetadata] = useState<Record<string, boolean>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const chatModes: ChatMode[] = [
@@ -85,6 +95,47 @@ const ChatInterface = () => {
           ? `I've analyzed your ${attachedFiles.length > 0 ? 'uploaded documents' : 'previous PDFs'} and found relevant information about "${inputValue}". Here's what I found...`
           : `I've searched the web for academic information about "${inputValue}". Here are the most relevant findings...`,
         timestamp: new Date(),
+        metadata: selectedMode === 'pdf' 
+          ? {
+              sources: [
+                {
+                  name: attachedFiles.length > 0 ? attachedFiles[0].name : 'research_paper.pdf',
+                  pageNumber: Math.floor(Math.random() * 20) + 1,
+                  title: 'Academic Research Paper',
+                  type: 'pdf'
+                },
+                {
+                  name: 'academic_study.pdf',
+                  pageNumber: Math.floor(Math.random() * 15) + 5,
+                  title: 'Related Academic Study',
+                  type: 'pdf'
+                },
+                {
+                  name: 'methodology_guide.pdf',
+                  pageNumber: Math.floor(Math.random() * 30) + 10,
+                  title: 'Research Methodology Guide',
+                  type: 'pdf'
+                }
+              ]
+            }
+            : {
+              sources: [ {
+                  name: 'https://scholar.google.com/example-research-1',
+                  title: 'Academic Study on ' + inputValue,
+                  type: 'web'
+                },
+                {
+                  name: 'https://researchgate.net/publication/example-2',
+                  title: 'Research Publication - ' + inputValue + ' Analysis',
+                  type: 'web'
+                },
+                {
+                  name: 'https://arxiv.org/abs/example-3',
+                  title: 'Latest Research Paper on ' + inputValue,
+                  type: 'web'
+                }
+              ]
+            }
       };
       setMessages(prev => [...prev, botResponse]);
       setIsLoading(false);
@@ -99,6 +150,12 @@ const ChatInterface = () => {
 
   const removeFile = (index: number) => {
     setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+    const toggleMetadata = (messageId: string) => {
+    setShowMetadata(prev => ({
+      ...prev,
+      [messageId]: !prev[messageId]
+    }));
   };
 
   return (
@@ -167,6 +224,49 @@ const ChatInterface = () => {
                     )}
                   >
                     <p className="text-sm">{message.content}</p>
+                    {/* Metadata toggle button for bot messages */}
+                    {message.type === 'bot' && message.metadata && (
+                      <div className="mt-2 pt-2 border-t border-border/20">
+                         <button
+                         onClick={() => toggleMetadata(message.id)}
+                         className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 transition-opacity"
+                         > 
+                         <Info className="w-3 h-3" />
+                         <span>{showMetadata[message.id] ? 'Hide' : 'Show'} sources ({message.metadata.sources.length})</span>
+                         </button>
+                         {/* Metadata display when expanded */}
+                         {showMetadata[message.id] && (
+                          <div className="mt-2 space-y-1">
+                             {message.metadata.sources.map((source, index) => (
+                              <div key={index} className="flex items-center gap-2 text-xs opacity-70 bg-background/20 p-2 rounded">
+                                {source.type === 'web' ? (
+                                  <>
+                                    <Globe className="w-3 h-3 flex-shrink-0" />
+                                    <div className="min-w-0 flex-1">
+                                      <div className="truncate font-medium">{source.title}</div>
+                                      <div className="truncate text-xs opacity-60">{source.name}</div>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <FileText className="w-3 h-3 flex-shrink-0" />
+                                    <div className="min-w-0 flex-1">
+                                      <div className="truncate font-medium">{source.title}</div>
+                                      <div className="truncate text-xs opacity-60">
+                                        {source.name} • Page {source.pageNumber}
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                      </div>
+                    )}
+
+
                     {message.attachments && message.attachments.length > 0 && (
                       <div className="mt-2 space-y-1">
                         {message.attachments.map((file, index) => (
@@ -225,7 +325,7 @@ const ChatInterface = () => {
 
             {/* Input */}
             <div className="border-t p-4">
-              <div className="flex gap-3">
+              <div className="flex gap-3 items-end">
                 <div className="flex-1">
                   <Textarea
                     value={inputValue}
@@ -244,12 +344,13 @@ const ChatInterface = () => {
                     }}
                   />
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex gap-2 mb-2">
                   {selectedMode === 'pdf' && (
                     <Button
                       variant="academicOutline"
                       size="icon"
                       onClick={() => fileInputRef.current?.click()}
+                      className="h-10 w-10"
                     >
                       <Paperclip className="w-4 h-4" />
                     </Button>
@@ -259,6 +360,7 @@ const ChatInterface = () => {
                     size="icon"
                     onClick={handleSendMessage}
                     disabled={!inputValue.trim() && attachedFiles.length === 0}
+                     className="h-10 w-10"
                   >
                     <Send className="w-4 h-4" />
                   </Button>
