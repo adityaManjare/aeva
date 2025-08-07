@@ -1,20 +1,20 @@
 from fastapi import FastAPI
-from .backend.routers import doc_processor, chatbot
+from backend.routers import doc_processor, chatbot
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
 
-app.include_router(doc_processor.router)
-app.include_router(chatbot.router)
 
-#setting up CORS such that my frontend can api call my backend
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://172.23.4.184:8080/"],
+    allow_origins=["http://localhost:8080", "http://localhost:3000"],  # Your frontend URLs
     allow_credentials=True,
-    allow_methods=["*"],   # allow all HTTP methods: GET, POST...
-    allow_headers=["*"],   # allow all headers
-
-
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
 )
+
+
+app.include_router(doc_processor.router)
+app.include_router(chatbot.router)
