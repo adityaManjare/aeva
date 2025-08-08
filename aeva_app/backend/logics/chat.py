@@ -2,9 +2,12 @@ import chromadb
 from sentence_transformers import SentenceTransformer
 from . import chatbot , web_search
 from .. import schemas
+import os
+db_path = os.path.join(os.path.dirname(__file__), "../../chroma_db")
+client = chromadb.PersistentClient(path=os.path.abspath(db_path))
 
 embedding_model = SentenceTransformer("multi-qa-MPNET-base-dot-v1")
-client = chromadb.PersistentClient(path="../../../chroma_db")
+client = chromadb.PersistentClient(path=db_path)
 embeddings_db = client.get_or_create_collection(name="embeddings") # this is the table for storing embeddings
 
 
@@ -28,7 +31,9 @@ def final_reply(query: schemas.UserChat):
             context=result["documents"][0],
             metadata=result["metadatas"][0]
         )
-        return chatbot.chatbot(input_query)
+        final_result= chatbot.chatbot(input_query)
+        print(f"Final chatbot result: {final_result}")
+        return final_result
     
     elif query.search_mode == 'web_search':  # Make sure this condition matches
         print("Doing web search...")  # Debug

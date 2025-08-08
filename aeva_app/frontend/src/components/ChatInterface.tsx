@@ -178,22 +178,26 @@ const ChatInterface = () => {
         await uploadFiles(attachedFiles);
         setAttachedFiles([]);
       }
-
+//  cause of error
       const response = await sendChatMessage(currentInput, selectedMode);
       
       let botContent = '';
       let sources: any[] = [];
+// 
 
-      if (typeof response === 'string') {
-        botContent = response;
-      } else if (response.content) {
-        botContent = response.content;
+
+//error point
+ if (response.ans) {
+        botContent = response.ans;
         if (response.metadata) {
           sources = processMetadata(response.metadata, selectedMode === 'pdf' ? 'study_material' : 'web_search');
         }
       } else {
         botContent = 'I received your message and processed it successfully.';
       }
+// ....
+
+
 
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),

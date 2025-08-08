@@ -2,8 +2,11 @@ import os , shutil
 from fastapi import UploadFile,HTTPException,status
 from typing import List
 
+# this directory code is written by gpt as by me i was getting error 
+base_dir = os.path.dirname(os.path.abspath(__file__))  # This file's folder (logics/)
+doc_directory = os.path.abspath(os.path.join(base_dir, "../../test_data"))  # go up two levels
+os.makedirs(doc_directory, exist_ok=True)
 
-doc_directory = "test_data"
 os.makedirs(doc_directory, exist_ok=True)
 
 

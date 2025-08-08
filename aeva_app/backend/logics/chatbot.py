@@ -7,9 +7,12 @@ import requests
 from .. import schemas
 
 #constants and important 
+db_path = os.path.join(os.path.dirname(__file__), "../../chroma_db")
+client = chromadb.PersistentClient(path=os.path.abspath(db_path))
+
 
 embedding_model = SentenceTransformer("multi-qa-MPNET-base-dot-v1")
-client = chromadb.PersistentClient(path="../../../chroma_db")
+client = chromadb.PersistentClient(path=db_path)
 embeddings_db = client.get_or_create_collection(name="embeddings")
 
 
