@@ -114,12 +114,14 @@ const ChatInterface = () => {
     }
   };
 
+
+// error in context 
   const processMetadata = (metadata: any[], searchMode: string) => {
     if (searchMode === 'study_material') {
       return metadata.map(meta => ({
-        name: meta.filename || 'Unknown file',
-        pageNumber: meta.page_number || 1,
-        title: meta.filename || 'PDF Document',
+        name: meta.doc_name || 'error',
+        pageNumber: meta.page_number || 0,
+        title: meta.doc_name || 'error',
         type: 'pdf' as const
       }));
     } else {
