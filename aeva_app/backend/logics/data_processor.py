@@ -1,6 +1,9 @@
 from fastapi import HTTPException,status
 import os , fitz  , chromadb ,spacy
 from sentence_transformers import SentenceTransformer
+from paddleocr import PaddleOCR
+from PIL import Image
+import numpy as np
 
 base_dir = os.path.dirname(os.path.abspath(__file__))  # This file's folder (logics/)
 path_db = os.path.abspath(os.path.join(base_dir, "../../chroma_db"))  # go up two levels
@@ -10,6 +13,7 @@ embedding_model = SentenceTransformer("multi-qa-MPNET-base-dot-v1")
 client = chromadb.PersistentClient(path=path_db)
 embeddings_db = client.get_or_create_collection(name="embeddings")
 english_model = spacy.load("en_core_web_sm")
+ocr = PaddleOCR(use_angle_cls=True, lang='en')
 
 
 def parse_doc(url):
@@ -22,12 +26,27 @@ def parse_doc(url):
         if filename.endswith(".pdf"):
             filePath = os.path.join(url,filename)
             doc = fitz.open(filePath)
-            for page_number,page in enumerate(doc): 
-                data.append({
-                "page_number": page_number +1,
-                "context": page.get_text(),
-                "doc_name": filename
-                 })
+            for page_number,page in enumerate(doc):
+                if page.get_text():
+                    data.append({
+                    "page_number": page_number +1,
+                    "context": page.get_text(),
+                    "doc_name": filename
+                     })
+                else:
+                    pix = page.get_pixmap(dpi=300)
+                    img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                    img_array = np.array(img)
+                    result = ocr.ocr(img_array)
+                    full_text =''
+                    for line in result[0]:
+                        full_text += line[1][0] + "  "
+                    data.append({
+                        "page_number":page_number,
+                        "context": full_text,
+                        "doc_name": filename
+                    })
+
         
             else:
                 print(f"parsing of document {filename} successful")
@@ -63,4 +82,4 @@ def chunk_embed_store(chunk_size,data):
         chunk_id +=1        
         print("chunking , embedding and storing successful")
 
-
+#  
